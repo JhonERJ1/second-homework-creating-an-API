@@ -19,7 +19,7 @@ namespace customerOrders.API.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var customer = _customers.FirstOrDefault(m => m.Id == id);
+            var customer = _customers.FirstOrDefault(c => c.Id == id);
             if (customer == null)
             {
                 return NotFound();
@@ -54,7 +54,7 @@ namespace customerOrders.API.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] Models.Customer updateCustomer)
         {
-            var customer = _customers.FirstOrDefault(m => m.Id == id);
+            var customer = _customers.FirstOrDefault(c => c.Id == id);
             if (customer == null)
             {
                 return NotFound();
@@ -72,7 +72,7 @@ namespace customerOrders.API.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var customer = _customers.Find(m => m.Id == id);
+            var customer = _customers.Find(c => c.Id == id);
             if (customer == null)
             {
                 return NotFound();

@@ -1,4 +1,4 @@
-﻿namespace customerOrders.API.Models
+﻿namespace customerOrders.API.Models.Entities
 {
     public class Customer
     {
@@ -10,5 +10,6 @@
         public string City { get; set; } = string.Empty;
         public string Region { get; set; } = string.Empty;
         public string PostalCode { get; set; } = string.Empty;
+        public List<Order> Orders { get; set; } = new List<Order>();
     }
 }

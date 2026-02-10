@@ -8,11 +8,11 @@ namespace customerOrders.API.Controllers
     [Route("api/[controller]")]
     public class CustomersController : ControllerBase
     {
-        private static List<Models.Customer> _customers = new List<Models.Customer>()
+        private static List<Models.Entities.Customer> _customers = new List<Models.Entities.Customer>()
             {
-                new Models.Customer { Id = 1, Name = "John Doe", Email = "JDoe@email.com" , Phone = "800-000-0000", Address = "C/4, piantini No. 25, Capital, RD",
+                new Models.Entities.Customer { Id = 1, Name = "John Doe", Email = "JDoe@email.com" , Phone = "800-000-0000", Address = "C/4, piantini No. 25, Capital, RD",
                 City = "Capital", Region = "Republica Dominicana", PostalCode = "00000"},
-                new Models.Customer { Id = 2, Name = "Jane Smith", Email = "JSmith@email.com", Phone = "811-111-1111", Address = "C/6, Gold street, Dubai",
+                new Models.Entities.Customer { Id = 2, Name = "Jane Smith", Email = "JSmith@email.com", Phone = "811-111-1111", Address = "C/6, Gold street, Dubai",
                 City = "Capital de dubai", Region = "Dubai", PostalCode = "12214" },
             };
 
@@ -44,7 +44,7 @@ namespace customerOrders.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Models.Customer customer)
+        public IActionResult Post([FromBody] Models.Entities.Customer customer)
         {
             customer.Id = _customers.Max(m => m.Id) + 1;
             _customers.Add(customer);
@@ -52,7 +52,7 @@ namespace customerOrders.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] Models.Customer updateCustomer)
+        public IActionResult Put(int id, [FromBody] Models.Entities.Customer updateCustomer)
         {
             var customer = _customers.FirstOrDefault(c => c.Id == id);
             if (customer == null)

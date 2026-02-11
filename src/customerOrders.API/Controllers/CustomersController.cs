@@ -16,6 +16,12 @@ namespace customerOrders.API.Controllers
                 City = "Capital de dubai", Region = "Dubai", PostalCode = "12214" },
             };
 
+        [HttpGet]
+        public IActionResult Get()
+        {
+            return Ok(_customers);
+        }
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -25,22 +31,6 @@ namespace customerOrders.API.Controllers
                 return NotFound();
             }
             return Ok(customer);
-        }
-
-        [HttpGet]
-        public IActionResult Get()
-        {
-            return Ok(_customers);
-        }
-        [HttpGet("/api/orders/Get1")]
-        public IActionResult Getxx()
-        {
-            return Ok(_customers);
-        }
-        [HttpGet("Get2")]
-        public IActionResult Getx()
-        {
-            return Ok(_customers);
         }
 
         [HttpPost]

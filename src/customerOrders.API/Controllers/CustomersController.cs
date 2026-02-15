@@ -8,24 +8,24 @@ namespace customerOrders.API.Controllers
     [Route("api/[controller]")]
     public class CustomersController : ControllerBase
     {
-        private static List<Models.Entities.Customer> _customers = new List<Models.Entities.Customer>()
-            {
-                new Models.Entities.Customer { Id = 1, Name = "John Doe", Email = "JDoe@email.com" , Phone = "800-000-0000", Address = "C/4, piantini No. 25, Capital, RD",
-                City = "Capital", Region = "Republica Dominicana", PostalCode = "00000"},
-                new Models.Entities.Customer { Id = 2, Name = "Jane Smith", Email = "JSmith@email.com", Phone = "811-111-1111", Address = "C/6, Gold street, Dubai",
-                City = "Capital de dubai", Region = "Dubai", PostalCode = "12214" },
-            };
+        private readonly Data.CustomerOrdersDbContext _context;
+
+        public CustomersController(Data.CustomerOrdersDbContext context)
+        {
+            _context = context;
+        }
 
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(_customers);
+            var customers = _context.Customers.ToList();
+            return Ok(customers);
         }
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var customer = _customers.FirstOrDefault(c => c.Id == id);
+            var customer = _context.Customers.FirstOrDefault(c => c.Id == id);
             if (customer == null)
             {
                 return NotFound();
@@ -34,17 +34,18 @@ namespace customerOrders.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Models.Entities.Customer customer)
+        public IActionResult Post(Models.Entities.Customer customer)
         {
-            customer.Id = _customers.Max(m => m.Id) + 1;
-            _customers.Add(customer);
+            customer.Id = _context.Customers.Max(m => m.Id) + 1;
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
             return CreatedAtAction(nameof(Get), new { id = customer.Id }, customer);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] Models.Entities.Customer updateCustomer)
+        public IActionResult Put(int id, Models.Entities.Customer updateCustomer)
         {
-            var customer = _customers.FirstOrDefault(c => c.Id == id);
+            var customer = _context.Customers.FirstOrDefault(c => c.Id == id);
             if (customer == null)
             {
                 return NotFound();
@@ -56,18 +57,21 @@ namespace customerOrders.API.Controllers
             customer.City = updateCustomer.City;
             customer.Region = updateCustomer.Region;
             customer.PostalCode = updateCustomer.PostalCode;
+            _context.Customers.Update(customer);
+            _context.SaveChanges();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var customer = _customers.Find(c => c.Id == id);
+            var customer = _context.Customers.FirstOrDefault(c => c.Id == id);
             if (customer == null)
             {
                 return NotFound();
             }
-            _customers.Remove(customer);
+            _context.Customers.Remove(customer);
+            _context.SaveChanges();
             return NoContent();
         }
         

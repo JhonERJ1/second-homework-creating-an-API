@@ -1,86 +1,108 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using customerOrders.API.Models.Dtos;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 namespace customerOrders.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class OrdersController : ControllerBase
     {
-        private static readonly List<Models.Entities.Order> _orders = new List<Models.Entities.Order>()
+        private readonly Data.CustomerOrdersDbContext _context;
+
+        public OrdersController(Data.CustomerOrdersDbContext context)
         {
-            new Models.Entities.Order { Id = 1, OrderDate = DateTime.Now.AddDays(-10), TotalAmount = 100 },
-            new Models.Entities.Order { Id = 2, OrderDate = DateTime.Now.AddDays(-5), TotalAmount = 200 },
-        };
+            _context = context;
+        }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Models.Entities.OrderDto>> GetAll()
+        public ActionResult<IEnumerable<Models.Dtos.OrderWithCustomerDto>> GetAll()
         {
-            var response = _orders.Select(o => new Models.Entities.OrderDto
+           
+            
+            var response = _context.Orders.Include(o => o.Customer)
+                .Select(o => new Models.Dtos.OrderWithCustomerDto
             {
                 Id = o.Id,
                 TotalAmount = o.TotalAmount,
-                CustomerId = o.CustomerId
+                CustomerId = o.CustomerId,
+                CustomerName = o.Customer.Name
             }).ToList();
-            return Ok(_orders);
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Models.Entities.Order> GetById(int id)
+        public ActionResult<Models.Dtos.OrderWithCustomerDto> GetById(int id)
         {
-            var order = _orders.FirstOrDefault(o => o.Id == id);
-            if (order == null)
-            {
+            var response = _context.Orders.Include(o => o.Customer)
+                .Where(o => o.Id == id)
+                .Select(o => new Models.Dtos.OrderWithCustomerDto
+                {
+                Id = o.Id,
+                TotalAmount = o.TotalAmount,
+                CustomerId = o.CustomerId,
+                CustomerName = o.Customer.Name
+            }).FirstOrDefault();
+
+            if (response == null)
                 return NotFound();
-            }
-            return Ok(order);
+
+            return Ok(response);
         }
 
         [HttpPost]
-        public ActionResult<Models.Entities.Order> Create(Models.Entities.OrderDto request)
+        public ActionResult<Models.Entities.Order> Create(Models.Dtos.OrderCreateDto request)
         {
            if (request.TotalAmount <= 0)
            {
                return BadRequest("Invalid order data.");
            }
-
-            int NewId = _orders.Any() ? _orders.Max(o => o.Id) + 1 : 1;
-            request.Id = NewId;
             request.TotalAmount = request.TotalAmount;
             var order = new Models.Entities.Order
             {
-                Id = request.Id,
-                OrderDate = DateTime.Now,
-                UpdateOrder = DateTime.Now,
+                //OrderDate = DateTime.Now,
+                //UpdateOrder = DateTime.Now,
                 TotalAmount = request.TotalAmount,
                 CustomerId = request.CustomerId
             };
-            _orders.Add(order);
-            return CreatedAtAction(nameof(GetById), new { id = request.Id }, request);
+            _context.Orders.Add(order);
+            _context.SaveChanges();
+            return Ok(new { id = order.Id });
+            
+            //return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
         }
 
         [HttpPut("{id}")]
-        public ActionResult<Models.Entities.Order> Update(int id, Models.Entities.OrderDto request)
+        public ActionResult<Models.Entities.Order> Update(int id, Models.Dtos.OrderUpdateDto request)
         {
-            var existingOrder = _orders.FirstOrDefault(o => o.Id == id);
+            if (id != request.Id || request.TotalAmount <= 0)
+            {
+                return BadRequest("Invalid order data.");
+            }
+            var existingOrder = _context.Orders.FirstOrDefault(o => o.Id == id);
             if (existingOrder == null)
             {
                 return NotFound();
             }
 
-            existingOrder.UpdateOrder = DateTime.Now;
+            //existingOrder.UpdateOrder = DateTime.Now;
             existingOrder.TotalAmount = request.TotalAmount;
-
+            existingOrder.CustomerId = request.CustomerId;
+            
+            _context.Orders.Update(existingOrder);
+            _context.SaveChanges();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var order = _orders.FirstOrDefault(o => o.Id == id);
+            var order = _context.Orders.FirstOrDefault(o => o.Id == id);
             if (order == null)
             {
                 return NotFound();
             }
-            _orders.Remove(order);
+            _context.Orders.Remove(order);
+            _context.SaveChanges();
             return NoContent();
         }
 

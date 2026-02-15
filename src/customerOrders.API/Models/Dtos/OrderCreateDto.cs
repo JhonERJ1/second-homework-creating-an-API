@@ -1,10 +1,9 @@
-﻿namespace customerOrders.API.Models.Entities
+﻿namespace customerOrders.API.Models.Dtos
 {
-    public class OrderDto
+    public class OrderCreateDto
     {
         public int Id { get; set; }
         public decimal TotalAmount { get; set; } = 0;
         public int CustomerId { get; set; }
-        public CustomerDto Customer { get; set; }
     }
 }

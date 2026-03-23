@@ -1,10 +1,11 @@
-﻿namespace customerOrders.API.Models.Entities
+﻿namespace customerOrders.Domain.Entities
 {
     public class OrderDto
     {
         public int Id { get; set; }
         public decimal TotalAmount { get; set; } = 0;
         public int CustomerId { get; set; }
-        public CustomerDto Customer { get; set; }
+
+        public bool IsCanceled { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace customerOrders.API.Models.Dtos
+﻿namespace customerOrders.Application.Responses
 {
     public class ApiResponse<T> where T : class
     {

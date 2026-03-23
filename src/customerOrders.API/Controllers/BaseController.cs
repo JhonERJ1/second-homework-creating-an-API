@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using customerOrders.Persistence;
 using customerOrders.Domain.Entities;
 using customerOrders.Infrastructure.Repositories;
-using customerOrders.API.Models.Dtos;
+using customerOrders.Application.Models;
 
 namespace customerOrders.API.Controllers
 {

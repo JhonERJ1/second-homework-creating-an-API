@@ -1,9 +1,11 @@
-﻿namespace customerOrders.API.Models.Dtos
+﻿namespace customerOrders.Application.Dtos.Orders
 {
-    public class OrderUpdateDto
+    public class OrderDto
     {
         public int Id { get; set; }
         public decimal TotalAmount { get; set; } = 0;
         public int CustomerId { get; set; }
+
+        public bool IsCanceled { get; set; }
     }
 }

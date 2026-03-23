@@ -1,25 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.Data;
+using customerOrders.Persistence;
+using customerOrders.Domain.Entities;
+using customerOrders.Infrastructure.Repositories;
+
 namespace customerOrders.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class CustomersController : ControllerBase
     {
-        private readonly Data.CustomerOrdersDbContext _context;
+        private readonly CustomerOrdersDbContext _context;
+        private readonly UnitWork _unitWork;
 
-        public CustomersController(Data.CustomerOrdersDbContext context)
+        public CustomersController(CustomerOrdersDbContext context,
+            UnitWork unitWork)
         {
             _context = context;
+            _unitWork = unitWork;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
             var customers = _context.Customers.ToList();
-            return Ok(customers);
+            var response = _context.Customers.ToList();
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
@@ -34,16 +39,26 @@ namespace customerOrders.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(Models.Entities.Customer customer)
+        public IActionResult Post(Customer customer)
         {
-            customer.Id = _context.Customers.Max(m => m.Id) + 1;
-            _context.Customers.Add(customer);
-            _context.SaveChanges();
+            try { 
+                _unitWork.beginTransaction();
+                _unitWork.CustomerRepository.AddCustomer(customer);
+           
+               _unitWork.Complete();
+               _unitWork.commitTransaction();
             return CreatedAtAction(nameof(Get), new { id = customer.Id }, customer);
+            }
+            catch (Exception)
+            {
+                _unitWork.rollbackTransaction();
+                return StatusCode(500, "An error occurred while creating the customer.");
+                throw;
+            }
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, Models.Entities.Customer updateCustomer)
+        public IActionResult Put(int id, Customer updateCustomer)
         {
             var customer = _context.Customers.FirstOrDefault(c => c.Id == id);
             if (customer == null)

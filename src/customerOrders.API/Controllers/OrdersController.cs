@@ -1,108 +1,96 @@
-﻿using customerOrders.API.Models.Dtos;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using customerOrders.Persistence;
+using customerOrders.Domain.Entities;
+using customerOrders.Infrastructure.Repositories;
+using customerOrders.API.Models.Dtos;
+
 namespace customerOrders.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/orders")]
     public class OrdersController : ControllerBase
     {
-        private readonly Data.CustomerOrdersDbContext _context;
+        private readonly CustomerOrdersDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly UnitWork _unitWork;
 
-        public OrdersController(Data.CustomerOrdersDbContext context)
+        public OrdersController(CustomerOrdersDbContext context, 
+            IMapper mapper,
+            UnitWork unitWork)
         {
             _context = context;
+            _mapper = mapper;
+            _unitWork = unitWork;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Models.Dtos.OrderWithCustomerDto>> GetAll()
+        public ApiResponse<List<OrderDto>> GetAll()
         {
-           
-            
-            var response = _context.Orders.Include(o => o.Customer)
-                .Select(o => new Models.Dtos.OrderWithCustomerDto
-            {
-                Id = o.Id,
-                TotalAmount = o.TotalAmount,
-                CustomerId = o.CustomerId,
-                CustomerName = o.Customer.Name
-            }).ToList();
-            return Ok(response);
+            var orders = _unitWork.OrderRepository.GetAll();
+            var response = _mapper.Map<List<OrderDto>>(orders);
+            return ApiResponse<List<OrderDto>>.SuccessResponse(response);
+        }
+
+        [HttpGet]
+        [Route("with-customers")]
+        public ApiResponse<List<OrderWithCustomerDto>> GetAllWithCustomers()
+        {
+  
+            var orders = _unitWork.OrderRepository.GetAllWithCustomers();
+            var response = _mapper.Map<List<OrderWithCustomerDto>>(orders);
+            return ApiResponse<List<OrderWithCustomerDto>>.SuccessResponse(response);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Models.Dtos.OrderWithCustomerDto> GetById(int id)
+        public ApiResponse<OrderDto> GetById(int id)
         {
-            var response = _context.Orders.Include(o => o.Customer)
-                .Where(o => o.Id == id)
-                .Select(o => new Models.Dtos.OrderWithCustomerDto
-                {
-                Id = o.Id,
-                TotalAmount = o.TotalAmount,
-                CustomerId = o.CustomerId,
-                CustomerName = o.Customer.Name
-            }).FirstOrDefault();
-
-            if (response == null)
-                return NotFound();
-
-            return Ok(response);
+            var order = _unitWork.OrderRepository.GetById(id);
+            if (order == null)
+                return ApiResponse<OrderDto>.ErrorResponse("Order not found", 404);
+            var response = _mapper.Map<OrderDto>(order);
+            return ApiResponse<OrderDto>.SuccessResponse(response);
         }
 
         [HttpPost]
-        public ActionResult<Models.Entities.Order> Create(Models.Dtos.OrderCreateDto request)
+        public ApiResponse<OrderDto> Create(OrderCreateDto request)
         {
            if (request.TotalAmount <= 0)
            {
-               return BadRequest("Invalid order data.");
+               return ApiResponse<OrderDto>.ErrorResponse("Invalid order data.", 400);
            }
-            request.TotalAmount = request.TotalAmount;
-            var order = new Models.Entities.Order
-            {
-                //OrderDate = DateTime.Now,
-                //UpdateOrder = DateTime.Now,
-                TotalAmount = request.TotalAmount,
-                CustomerId = request.CustomerId
-            };
-            _context.Orders.Add(order);
-            _context.SaveChanges();
-            return Ok(new { id = order.Id });
-            
-            //return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
+           var order = _mapper.Map<Order>(request);
+           order.IsCanceled = false;
+            _unitWork.OrderRepository.Add(order);
+            return ApiResponse<OrderDto>.SuccessResponse(_mapper.Map<OrderDto>(order), "Order created successfully", 201);
         }
 
         [HttpPut("{id}")]
-        public ActionResult<Models.Entities.Order> Update(int id, Models.Dtos.OrderUpdateDto request)
+        public ApiResponse<OrderDto> Update(int id, OrderUpdateDto request)
         {
             if (id != request.Id || request.TotalAmount <= 0)
             {
-                return BadRequest("Invalid order data.");
+                return ApiResponse<OrderDto>.ErrorResponse("Invalid order data.", 400);
             }
-            var existingOrder = _context.Orders.FirstOrDefault(o => o.Id == id);
+            var existingOrder = _unitWork.OrderRepository.GetById(id);
             if (existingOrder == null)
             {
-                return NotFound();
+                return ApiResponse<OrderDto>.ErrorResponse("Order not found", 404);
             }
-
-            //existingOrder.UpdateOrder = DateTime.Now;
-            existingOrder.TotalAmount = request.TotalAmount;
-            existingOrder.CustomerId = request.CustomerId;
-            
-            _context.Orders.Update(existingOrder);
-            _context.SaveChanges();
-            return NoContent();
+            _unitWork.OrderRepository.UpdateOrder(_mapper.Map<Order>(request));
+            return ApiResponse<OrderDto>.SuccessResponse(_mapper.Map<OrderDto>(request), "Order updated successfully", 200);
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var order = _context.Orders.FirstOrDefault(o => o.Id == id);
+            var order = _unitWork.OrderRepository.GetById(id);
             if (order == null)
             {
                 return NotFound();
             }
-            _context.Orders.Remove(order);
-            _context.SaveChanges();
+            _unitWork.OrderRepository.Delete(order.Id);
             return NoContent();
         }
 

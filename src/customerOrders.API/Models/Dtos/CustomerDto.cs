@@ -1,4 +1,4 @@
-﻿namespace customerOrders.API.Models.Entities
+﻿namespace customerOrders.API.Models.Dtos
 {
     public class CustomerDto
     {

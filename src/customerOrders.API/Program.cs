@@ -1,5 +1,5 @@
 using customerOrders.Persistence;
-using customerOrders.API.Models;
+using customerOrders.Application.Models;
 using Microsoft.EntityFrameworkCore;
 using customerOrders.Infrastructure.Repositories;
 using customerOrders.Domain.Entities;

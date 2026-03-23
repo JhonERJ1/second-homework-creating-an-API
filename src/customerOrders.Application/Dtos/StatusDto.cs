@@ -1,4 +1,4 @@
-﻿namespace customerOrders.API.Models.Dtos
+﻿namespace customerOrders.Application.Dtos
 {
     public class StatusDto
     {

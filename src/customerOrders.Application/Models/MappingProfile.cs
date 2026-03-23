@@ -1,7 +1,8 @@
-﻿using customerOrders.API.Models.Dtos;
+﻿using customerOrders.Application.Dtos;
+using customerOrders.Application.Dtos.Orders;
 using customerOrders.Domain.Entities;
 
-namespace customerOrders.API.Models
+namespace customerOrders.Application.Models
 {
     public class MappingProfile: AutoMapper.Profile
     {

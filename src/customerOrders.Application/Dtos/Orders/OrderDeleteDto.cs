@@ -1,6 +1,6 @@
 ﻿using customerOrders.Domain.Entities;
 
-namespace customerOrders.API.Models.Dtos
+namespace customerOrders.Application.Dtos.Orders
 {
     public class OrderDeleteDto
     {

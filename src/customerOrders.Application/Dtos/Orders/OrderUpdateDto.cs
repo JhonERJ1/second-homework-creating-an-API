@@ -1,11 +1,9 @@
-﻿namespace customerOrders.Domain.Entities
+﻿namespace customerOrders.Application.Dtos.Orders
 {
-    public class OrderDto
+    public class OrderUpdateDto
     {
         public int Id { get; set; }
         public decimal TotalAmount { get; set; } = 0;
         public int CustomerId { get; set; }
-
-        public bool IsCanceled { get; set; }
     }
 }

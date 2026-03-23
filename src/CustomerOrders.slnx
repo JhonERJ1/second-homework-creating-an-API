@@ -1,6 +1,13 @@
 <Solution>
-  <Project Path="customerOrders.API/customerOrders.API.csproj" Id="571ae677-8321-4726-a7db-7de706e9980a" />
-  <Project Path="customerOrders.Domain/customerOrders.Domain.csproj" Id="c17f86bd-0bca-48e9-a4ce-742091d8b840" />
-  <Project Path="customerOrders.Infrastructure/customerOrders.Infrastructure.csproj" Id="01315706-3ae0-4dd3-bdf2-a3bbd9d5f72d" />
-  <Project Path="customerOrders.Persistence/customerOrders.Persistence.csproj" Id="5059292e-9e69-4a58-9702-90928e6029b2" />
+  <Folder Name="/Aplication/">
+    <Project Path="customerOrders.API/customerOrders.API.csproj" Id="571ae677-8321-4726-a7db-7de706e9980a" />
+  </Folder>
+  <Folder Name="/Bussines/">
+    <Project Path="customerOrders.Application/customerOrders.Application.csproj" Id="931540e2-3783-4c6c-b725-61e72e9e2917" />
+  </Folder>
+  <Folder Name="/Data/">
+    <Project Path="customerOrders.Domain/customerOrders.Domain.csproj" Id="c17f86bd-0bca-48e9-a4ce-742091d8b840" />
+    <Project Path="customerOrders.Infrastructure/customerOrders.Infrastructure.csproj" Id="01315706-3ae0-4dd3-bdf2-a3bbd9d5f72d" />
+    <Project Path="customerOrders.Persistence/customerOrders.Persistence.csproj" Id="5059292e-9e69-4a58-9702-90928e6029b2" />
+  </Folder>
 </Solution>

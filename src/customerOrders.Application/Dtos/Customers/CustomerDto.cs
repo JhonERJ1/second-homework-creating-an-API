@@ -1,4 +1,4 @@
-﻿namespace customerOrders.Application.Dtos
+﻿namespace customerOrders.Application.Dtos.Customers
 {
     public class CustomerDto
     {
@@ -10,5 +10,6 @@
         public string City { get; set; } = string.Empty;
         public string Region { get; set; } = string.Empty;
         public string PostalCode { get; set; } = string.Empty;
+
     }
 }

@@ -6,6 +6,7 @@ using customerOrders.Domain.Entities;
 using customerOrders.Infrastructure.Repositories;
 using customerOrders.Application.Responses;
 using customerOrders.Application.Dtos.Orders;
+using customerOrders.Application.Services;
 
 namespace customerOrders.API.Controllers
 {
@@ -13,25 +14,17 @@ namespace customerOrders.API.Controllers
     [Route("api/orders")]
     public class OrdersController : ControllerBase
     {
-        private readonly CustomerOrdersDbContext _context;
-        private readonly IMapper _mapper;
-        private readonly UnitWork _unitWork;
+        private readonly ClientService _clientService;
 
-        public OrdersController(CustomerOrdersDbContext context, 
-            IMapper mapper,
-            UnitWork unitWork)
+        public OrdersController( ClientService clientService)
         {
-            _context = context;
-            _mapper = mapper;
-            _unitWork = unitWork;
+            _clientService = clientService;
         }
 
         [HttpGet]
         public ApiResponse<List<OrderDto>> GetAll()
         {
-            var orders = _unitWork.OrderRepository.GetAll();
-            var response = _mapper.Map<List<OrderDto>>(orders);
-            return ApiResponse<List<OrderDto>>.SuccessResponse(response);
+            return _clientService.GetAllOrders();
         }
 
         [HttpGet]
@@ -39,60 +32,32 @@ namespace customerOrders.API.Controllers
         public ApiResponse<List<OrderWithCustomerDto>> GetAllWithCustomers()
         {
   
-            var orders = _unitWork.OrderRepository.GetAllWithCustomers();
-            var response = _mapper.Map<List<OrderWithCustomerDto>>(orders);
-            return ApiResponse<List<OrderWithCustomerDto>>.SuccessResponse(response);
+            return _clientService.GetAllOrdersWithCustomers();
         }
 
         [HttpGet("{id}")]
         public ApiResponse<OrderDto> GetById(int id)
         {
-            var order = _unitWork.OrderRepository.GetById(id);
-            if (order == null)
-                return ApiResponse<OrderDto>.ErrorResponse("Order not found", 404);
-            var response = _mapper.Map<OrderDto>(order);
-            return ApiResponse<OrderDto>.SuccessResponse(response);
+            return _clientService.GetOrderById(id);
+            
         }
 
         [HttpPost]
         public ApiResponse<OrderDto> Create(OrderCreateDto request)
         {
-           if (request.TotalAmount <= 0)
-           {
-               return ApiResponse<OrderDto>.ErrorResponse("Invalid order data.", 400);
-           }
-           var order = _mapper.Map<Order>(request);
-           order.IsCanceled = false;
-            _unitWork.OrderRepository.Add(order);
-            return ApiResponse<OrderDto>.SuccessResponse(_mapper.Map<OrderDto>(order), "Order created successfully", 201);
+            return _clientService.CreateOrder(request);
         }
 
         [HttpPut("{id}")]
         public ApiResponse<OrderDto> Update(int id, OrderUpdateDto request)
         {
-            if (id != request.Id || request.TotalAmount <= 0)
-            {
-                return ApiResponse<OrderDto>.ErrorResponse("Invalid order data.", 400);
-            }
-            var existingOrder = _unitWork.OrderRepository.GetById(id);
-            if (existingOrder == null)
-            {
-                return ApiResponse<OrderDto>.ErrorResponse("Order not found", 404);
-            }
-            _unitWork.OrderRepository.UpdateOrder(_mapper.Map<Order>(request));
-            return ApiResponse<OrderDto>.SuccessResponse(_mapper.Map<OrderDto>(request), "Order updated successfully", 200);
+            return _clientService.UpdateOrder(id, request);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete(OrderDeleteDto request)
         {
-            var order = _unitWork.OrderRepository.GetById(id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-            _unitWork.OrderRepository.Delete(order.Id);
-            return NoContent();
+            return (IActionResult)_clientService.DeleteOrder(request);
         }
 
     }

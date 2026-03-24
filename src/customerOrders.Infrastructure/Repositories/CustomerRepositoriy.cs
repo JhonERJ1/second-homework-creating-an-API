@@ -28,6 +28,16 @@ namespace customerOrders.Infrastructure.Repositories
             _context.Customers.Add(customer);
         }
 
+        public void GetCustomerWithOrders(int id)
+        {
+            var customer = _context.Customers.FirstOrDefault(o => o.Id == id);
+            if (customer != null)
+            {
+                var orders = _context.Orders.Where(o => o.CustomerId == id).ToList();
+                customer.Orders = orders;
+            }
+        }
+
         public void UpdateCustomer(Customer customer)
         {
             var existingCustomer = _context.Customers.FirstOrDefault(o => o.Id == customer.Id);

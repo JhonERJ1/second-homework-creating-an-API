@@ -16,6 +16,11 @@ namespace customerOrders.Infrastructure.Repositories
             _context = context;
         }
 
+        public void Delete(Order order)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<Order> GetAllWithCustomers()
         {
 

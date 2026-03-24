@@ -1,14 +1,16 @@
-using customerOrders.Persistence;
 using customerOrders.Application.Models;
-using Microsoft.EntityFrameworkCore;
-using customerOrders.Infrastructure.Repositories;
+using customerOrders.Application.Services;
 using customerOrders.Domain.Entities;
+using customerOrders.Infrastructure.Repositories;
+using customerOrders.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<CustomerOrdersDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<UnitWork>();
 builder.Services.AddScoped<CustomerRepository>();
 builder.Services.AddScoped<OrderRepository>();
